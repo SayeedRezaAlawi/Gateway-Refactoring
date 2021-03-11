@@ -22,10 +22,10 @@ private:
 public:
 	typedef DATA iterator;
 	CTRingBuffer(uint16_t size = DEFAULTRINGBUFFERSIZE);
-	bool write(const DATA element);
-	bool read(DATA& element);
+	RC_t write(const DATA element);
+	RC_t read(DATA& element);
 	CTRingBuffer<DATA>& operator=(const CTRingBuffer<DATA>& other);
-	bool operator +=(const DATA& element);
+	RC_t operator +=(const DATA& element);
 	DATA operator *();
 	uint16_t first();
 	uint16_t last();
@@ -44,40 +44,36 @@ inline CTRingBuffer<DATA>::CTRingBuffer(uint16_t size) {
 	m_readIdx = 0;
 	m_writeIdx = 0;
 	m_data = new DATA[m_size];
-	for(unsigned int i=0; i < m_size; i++){
+	for(uint16_t i=0; i < m_size; i++){
 		m_data[i] = DATA();
 	}
 }
 
 template<class DATA>
-inline bool CTRingBuffer<DATA>::write(const DATA element) {
-	bool result = false;
+inline RC_t CTRingBuffer<DATA>::write(const DATA element) {
+
 	if(m_fillLevel < m_size){
 		m_data[(m_writeIdx++) % m_size] = element;
 		m_fillLevel++;
-		result = true;
+		return RC_SUCCESS;
 	}
 	else{
-		result = false;
-		throw RC_BUFFEROVERFLOW;
+		return RC_BUFFEROVERFLOW;
 	}
-	return result;
 }
 
 template<class DATA>
-inline bool CTRingBuffer<DATA>::read(DATA &element) {
-	bool result = false;
+inline RC_t CTRingBuffer<DATA>::read(DATA &element) {
+
 	if(m_fillLevel > 0){
 		element = m_data[m_readIdx++];
 		m_readIdx %= m_size;
 		m_fillLevel--;
-		result = true;
+		return RC_SUCCESS;
 	}
 	else{
-		result = false;
-		throw RC_BUFFERUNDERFLOW;
+		return RC_BUFFERUNDERFLOW;
 	}
-	return result;
 }
 
 template<class DATA>
@@ -87,25 +83,22 @@ inline CTRingBuffer<DATA>& CTRingBuffer<DATA>::operator =(const CTRingBuffer<DAT
 	m_readIdx = other.m_readIdx;
 	m_writeIdx = other.m_writeIdx;
 	m_data = new DATA[m_size];
-	for(unsigned int i=0; i < m_size; i++){
+	for(uint16_t i=0; i < m_size; i++){
 		m_data[i] = other.m_data[i];
 	}
 }
 
 template<class DATA>
-inline bool CTRingBuffer<DATA>::operator +=(const DATA &element) {
-	bool result = false;
+inline RC_t CTRingBuffer<DATA>::operator +=(const DATA &element) {
 	if(m_fillLevel < m_size){
 		m_data[m_writeIdx++] = element;
 		m_writeIdx %= m_size;
 		m_fillLevel++;
-		result = true;
+		return RC_SUCCESS;
 	}
 	else{
-		result = false;
-		throw RC_BUFFEROVERFLOW;
+		return RC_BUFFEROVERFLOW;
 	}
-	return result;
 }
 
 template<class DATA>
@@ -144,7 +137,7 @@ inline void CTRingBuffer<DATA>::clear() {
 	m_fillLevel = 0;
 	m_readIdx = 0;
 	m_writeIdx = 0;
-	for(unsigned int i=0; i < m_size; i++){
+	for(uint16_t i=0; i < m_size; i++){
 		m_data[i] = DATA();
 	}
 }

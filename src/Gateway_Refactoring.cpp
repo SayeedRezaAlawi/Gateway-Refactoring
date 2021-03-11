@@ -7,9 +7,17 @@
 //============================================================================
 
 #include <iostream>
+#include "CPort.h"
+#include "CUartPort.h"
+#include "CCanPort.h"
+#include "CGateway.h"
 using namespace std;
 
 int main() {
 	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+	CCanPort can2;
+	CCanPort can1;
+	CGateway gw1(&can2,&can1);
+	gw1.transmitFromAToB();
 	return 0;
 }
