@@ -11,6 +11,7 @@
 #include "CPort.h"
 
 #define CAN_DEFAULTBUFFERSIZE 64
+#define CAN_DEFAULTBYTESIZE 8
 
 class CCanPort : public CPort {
 public:
@@ -26,8 +27,10 @@ public:
 			 uint16_t bufferSizeTx = CAN_DEFAULTBUFFERSIZE
 			 );
 private:
-	RC_t writeByte_hw(uint8_t data);
-	RC_t readByte_hw(uint8_t& data);
+	RC_t writeByte_hw(CTRingBuffer<uint8_t> data);
+	RC_t readByte_hw(CTRingBuffer<uint8_t>& data);
+	uint16_t getDriverPackageSize();
+	uint16_t m_packageSize;
 };
 
 #endif /* CCANPORT_H_ */

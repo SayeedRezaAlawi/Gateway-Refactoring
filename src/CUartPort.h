@@ -10,6 +10,7 @@
 #include "CPort.h"
 
 #define UART_DEFAULTBUFFERSIZE 20
+#define UART_DEFAULTBYTESIZE 1
 
 class CUartPort : public CPort {
 public:
@@ -38,8 +39,10 @@ public:
 			uint16_t bufferSizeRx = UART_DEFAULTBUFFERSIZE,
 			uint16_t bufferSizeTx = UART_DEFAULTBUFFERSIZE);
 private:
-	RC_t writeByte_hw(uint8_t data);
-	RC_t readByte_hw(uint8_t& data);
+	RC_t writeByte_hw(CTRingBuffer<uint8_t> package);
+	RC_t readByte_hw(CTRingBuffer<uint8_t>& package);
+	uint16_t getDriverPackageSize();
+	uint16_t m_packageSize;
 };
 
 #endif /* CUARTPORT_H_ */

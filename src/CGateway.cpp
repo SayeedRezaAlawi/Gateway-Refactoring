@@ -6,6 +6,7 @@
  */
 
 #include "CGateway.h"
+#include <iostream>
 
 CGateway::CGateway(CPort *portA, CPort *portB) {
 	m_portA = portA;

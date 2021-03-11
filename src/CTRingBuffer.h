@@ -8,6 +8,8 @@
 #ifndef CTRINGBUFFER_H_
 #define CTRINGBUFFER_H_
 #include "global.h"
+#include <string>
+#include <iostream>
 
 #define DEFAULTRINGBUFFERSIZE 10
 
@@ -29,6 +31,7 @@ public:
 	DATA operator *();
 	uint16_t first();
 	uint16_t last();
+	operator std::string() const ;
 	void clear();
 	virtual ~CTRingBuffer();
 };
@@ -140,6 +143,19 @@ inline void CTRingBuffer<DATA>::clear() {
 	for(uint16_t i=0; i < m_size; i++){
 		m_data[i] = DATA();
 	}
+}
+
+template<class DATA>
+inline CTRingBuffer<DATA>::operator std::string() const
+{
+	std::string data = "";
+//	std::cout << "m_fillLevel: " << m_fillLevel << std::endl;
+	for (uint16_t i = 0; i < m_fillLevel; i++)
+	{
+
+		data += (char) m_data[i];
+	}
+	return data;
 }
 
 template<class DATA>

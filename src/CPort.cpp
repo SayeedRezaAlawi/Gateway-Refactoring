@@ -6,6 +6,7 @@
  */
 
 #include "CPort.h"
+#include <iostream>
 
 CPort::CPort(uint16_t txSize, uint16_t rxSize) : m_ringBufferRx(rxSize), m_ringBufferTx(txSize){
 }
@@ -31,34 +32,60 @@ RC_t CPort::readByteStream(std::string &data) {
 			dataFromDriver += (char)ldata;
 		}
 	}while(RC_SUCCESS == result);
+
 	data = dataFromDriver;
 	return RC_SUCCESS;;
 }
 
 RC_t CPort::portTx_isr(){
 	RC_t result = RC_ERROR;
-
-	do{
+	RC_t result2 = RC_ERROR;
+	CTRingBuffer<uint8_t> package(getDriverPackageSize());
+	std::cout << "Writing " << getDriverPackageSize() << " byte packages:"<< std::endl;
+	do
+	{
 		uint8_t data = 0;
 		result = m_ringBufferTx.read(data);
-		if(RC_SUCCESS == result)
-		{
-			writeByte_hw(data);
-		}
-	}while(RC_SUCCESS == result);
+		result2 = package += data;
 
+		if (RC_SUCCESS == result && RC_BUFFEROVERFLOW == result2)
+		{
+			writeByte_hw(package);
+			package.clear();
+			result2 = package += data;
+		}
+
+	} while (RC_SUCCESS == result);
+	writeByte_hw(package);
+	package.clear();
+	//Todo: real error handling to be added later
 	return RC_SUCCESS;
 }
 RC_t CPort::portRx_isr(){
 	RC_t result = RC_ERROR;
+	RC_t resultpackage = RC_ERROR;
+	CTRingBuffer<uint8_t> package;
+	std::cout << "Reading " << getDriverPackageSize() << " byte packages:"<< std::endl;
 	do
 	{
 		uint8_t data = 0;
 
-		result = readByte_hw(data);
+		result = readByte_hw(package);
 		if (RC_SUCCESS == result)
 		{
-			m_ringBufferRx.write(data);
+//			do{
+//				resultpackage = package.read(data);
+//				if (RC_SUCCESS == resultpackage)
+//				{
+//					m_ringBufferRx.write(data);
+//				}
+//			}while(resultpackage == RC_SUCCESS);
+			for (uint16_t i = 0; i < getDriverPackageSize(); i++)
+			{
+				package.read(data);
+				m_ringBufferRx.write(data);
+			}
+			package.clear();
 		}
 
 	} while (RC_SUCCESS == result);
