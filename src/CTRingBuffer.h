@@ -32,7 +32,7 @@ public:
 	uint16_t first();
 	uint16_t last();
 	operator std::string() const ;
-	void clear();
+	RC_t clear();
 	virtual ~CTRingBuffer();
 };
 
@@ -136,24 +136,37 @@ inline uint16_t CTRingBuffer<DATA>::last() {
 }
 
 template<class DATA>
-inline void CTRingBuffer<DATA>::clear() {
+inline RC_t CTRingBuffer<DATA>::clear() {
+//	m_fillLevel = 0;
+//	m_readIdx = 0;
+//	m_writeIdx = 0;
+//	for(uint16_t i=0; i < m_size; i++){
+//		m_data[i] = DATA();
+//	}
 	m_fillLevel = 0;
 	m_readIdx = 0;
 	m_writeIdx = 0;
-	for(uint16_t i=0; i < m_size; i++){
-		m_data[i] = DATA();
-	}
+
+	return RC_SUCCESS;
 }
 
 template<class DATA>
 inline CTRingBuffer<DATA>::operator std::string() const
 {
 	std::string data = "";
-//	std::cout << "m_fillLevel: " << m_fillLevel << std::endl;
-	for (uint16_t i = 0; i < m_fillLevel; i++)
+//	for (uint16_t i = 0; i < m_fillLevel; i++)
+//	{
+//
+//		data += (char) m_data[i];
+//	}
+	uint16_t size = m_size;
+	uint16_t readIdx= m_readIdx;
+	uint16_t fillLevel = m_fillLevel;
+	while(fillLevel > 0)
 	{
-
-		data += (char) m_data[i];
+	data += (char) m_data[readIdx++];
+	readIdx %= size;
+	fillLevel--;
 	}
 	return data;
 }

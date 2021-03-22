@@ -7,53 +7,56 @@
 
 #include "CUartPort.h"
 #include <iostream>
+#include "CCentralErrorHandler.h"
+#include "cfg.h"
+
+uint16_t CUartPort::m_noUartPort = 0;
 
 CUartPort::CUartPort(port_t port, uint32_t baudrate, uint8_t bits,
 		parity_t parity, uint8_t stopbits, uint16_t bufferSizeRx,
-		uint16_t bufferSizeTx) : CPort(bufferSizeTx, bufferSizeRx){
-	m_packageSize = UART_DEFAULTBYTESIZE;
+		uint16_t bufferSizeTx, uint16_t packagesize): CPort(bufferSizeTx, bufferSizeRx){
+	m_packageSize = packagesize;
 }
 
-RC_t CUartPort::writeByte_hw(CTRingBuffer<uint8_t> package){
-	std::string datastream ="";
-	uint8_t ldata;
-	RC_t result = RC_ERROR;
-	do{
-		result = package.read(ldata);
-		if(result == RC_SUCCESS){
-			datastream += (char)ldata;
-		}
-
-	}while(result == RC_SUCCESS);
-	std::cout << "Just wrote to UART hardware: " << datastream << std::endl;
-	return RC_SUCCESS;
+RC_t CUartPort::writeByte_hw(CTRingBuffer<uint8_t>& package){
+	std::cout << "Just wrote to UART hardware: Package: [ "
+				<< package.operator std::__cxx11::basic_string<char,
+				std::char_traits<char>,std::allocator<char>>() << " ]" << std::endl;
+		return RC_SUCCESS;
 }
 RC_t CUartPort::readByte_hw(CTRingBuffer<uint8_t>& package){
 	static uint8_t fakeData = 'a';
 	static uint8_t counter = 0;
 	RC_t result = RC_ERROR;
-	CTRingBuffer<uint8_t> packagedata(getDriverPackageSize());
-	do{
-		result = packagedata.write(fakeData);
-		if(result == RC_SUCCESS){
-			fakeData++;
-			counter++;
-		}
-	}while(result == RC_SUCCESS && counter < 20);
-	fakeData--;
-	package = packagedata;
+	if(counter < 20)
+	{
+		do{
+			result = package.write(fakeData);
+			if(result == RC_SUCCESS){
+				fakeData++;
+				counter++;
+			}
+		}while(result == RC_SUCCESS && counter < 20);
 
-	std::cout << "Just read from UART hardware: Package: [ "
+		std::cout << "Just read from UART hardware: Package: [ "
 				<< package.operator std::__cxx11::basic_string<char,
 				std::char_traits<char>,std::allocator<char>>() << " ]" << std::endl;
-		fakeData--;
-
-	if (counter >= 20) return RC_NODATA;
-
-	return RC_SUCCESS;
+		return RC_SUCCESS;
+	}
+	else
+	{
+		return RC_NODATA;
+	}
 }
 
-uint16_t CUartPort::getDriverPackageSize(){
+uint16_t CUartPort::getDriverPackageSize() const{
 	return m_packageSize;
 }
 
+void CUartPort::noUartPortIncreament() {
+	CUartPort::m_noUartPort++;
+}
+
+uint16_t CUartPort::getNoUartPort(){
+	return CUartPort::m_noUartPort;
+}

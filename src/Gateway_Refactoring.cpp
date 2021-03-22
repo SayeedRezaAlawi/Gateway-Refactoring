@@ -14,10 +14,34 @@
 using namespace std;
 
 int main() {
-	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
-	CCanPort can2;
 	CCanPort can1;
-	CGateway gw1(&can2,&can1);
-	gw1.transmitFromAToB();
+	CCanPort can2;
+	CCanPort can3;
+	CCanPort can4;
+	CUartPort uart1;
+	CUartPort uart2;
+	CUartPort uart3;
+	CUartPort uart4;
+	CUartPort uart5;
+	CUartPort uart6;
+
+
+//	CUartPort* uart6=0;
+	CGateway gw1(&can1,&uart1);
+	CGateway gw2(&can2,&uart2);
+//	CGateway gw3(&uart3,&uart4);
+	CGateway gw4(&can1,&can2);
+	gw4.transmitFromAToB();
+//	CGateway gw5(&uart1,uart3);
+
+//	CGateway gw6(CPortFactory::UART,CPortFactory::CAN);
+//	gw6.transmitFromAToB();
+//	CGateway gw7(CPortFactory::UART,CPortFactory::UART);
+//	CGateway gw8(CPortFactory::UART,CPortFactory::UART);
+//	CGateway gw9(CPortFactory::UART,CPortFactory::UART);
+
+//	gw1.transmitFromAToB();
+//	gw2.transmitFromAToB();
+//	gw3.transmitFromAToB();
 	return 0;
 }

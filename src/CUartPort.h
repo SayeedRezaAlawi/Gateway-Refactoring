@@ -37,12 +37,18 @@ public:
 			parity_t parity = NOPARITY,
 			uint8_t stopbits = 1,
 			uint16_t bufferSizeRx = UART_DEFAULTBUFFERSIZE,
-			uint16_t bufferSizeTx = UART_DEFAULTBUFFERSIZE);
+			uint16_t bufferSizeTx = UART_DEFAULTBUFFERSIZE,
+			uint16_t packagesize = 1);
+
+	static void noUartPortIncreament();
+	static uint16_t getNoUartPort();
 private:
-	RC_t writeByte_hw(CTRingBuffer<uint8_t> package);
+	RC_t writeByte_hw(CTRingBuffer<uint8_t>& package);
 	RC_t readByte_hw(CTRingBuffer<uint8_t>& package);
-	uint16_t getDriverPackageSize();
+	uint16_t getDriverPackageSize() const;
 	uint16_t m_packageSize;
+private:
+	static uint16_t m_noUartPort;
 };
 
 #endif /* CUARTPORT_H_ */
